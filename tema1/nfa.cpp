@@ -62,11 +62,70 @@ public:
     }
 
     void compute_word_dp(const std::string &s){
-        
+        // TODO
     }
 
     void compute_word(const std::string &s){
+        std::set<std::string> curr,nxt;
+        int sz=(int)s.size();
+        
+        curr.insert(init);
+        int idx=0;
 
+        std::cout << "$ : {" << init << "}\n"; 
+
+        if(s=="$"){
+            sz=0;
+        }
+
+        while(idx<sz){
+            int mx=-1;
+            nxt.clear();
+            for(const auto st:curr){
+                for(const auto [let,state]:g[st]){
+                    if(idx+(int)let.size()-1>=sz){
+                        continue;
+                    }
+
+                    if(s.substr(idx,(int)let.size())==let && (int)let.size()>mx){
+                        mx=(int)let.size();
+                        nxt.clear();
+                        for(const auto i:state){
+                            nxt.insert(i);
+                        }
+                    }
+                    else if(s.substr(idx,(int)let.size())==let && (int)let.size()==mx){
+                        for(const auto i:state){
+                            nxt.insert(i);
+                        }
+                    }
+                }
+            }
+
+            if(mx==-1){
+                std::cout << "RESPINS (abort)\n";
+                return;
+            }
+
+            std::cout << s.substr(0,idx+mx) << " : {";
+            for(const auto i:nxt){
+                if(i!=*--nxt.end())
+                    std::cout << i << ", ";
+                else 
+                    std::cout << i;
+            }
+            std::cout << "}\n";
+            idx+=mx; 
+            swap(nxt,curr);
+        }
+
+        for(const auto it:curr){
+            if(fi[it]){
+                std::cout << "ACCEPTAT\n";
+                return;
+            }
+        }
+        std::cout << "RESPINS\n";
     }
 }v;
 
@@ -134,10 +193,16 @@ void readNfa()
 
 void solve()
 {
-
+    std::ifstream fin("words.in");
+    while(fin >> aux){
+        v.compute_word(aux);
+    }
+    fin.close();
 }
 
 int main(int argc, char *argv[])
 {
+    readNfa();
+    solve();
     return 0;
 }
