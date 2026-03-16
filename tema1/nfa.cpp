@@ -1,13 +1,17 @@
 #include <bits/stdc++.h>    
 
-// pentru noi, $ o sa fie luat drept lambda
+// same ca la dfa, $ o sa fie luat drept lambda
+// cum difera aici?
+// daca vrem doar sa decidem daca un cuvant este acceptat sau nu 
+// putem sa rulam un dp care ruleaza in O(nr_states * len)
+// daca vrem sa afisam tot parcursul ne ducem spre o exponentiala 
 
-class dfa {
+class nfa {
 private:
     std::vector<std::string> alphabet,states;
     std::string init;
     std::unordered_map<std::string,bool> fi;
-    std::unordered_map<std::string,std::unordered_map<std::string,std::string> > g;
+    std::unordered_map<std::string,std::unordered_map<std::string,std::vector<std::string> > > g;
 
     bool validate_edge(const std::string &x, const std::string &let, const std::string &y){
         if(find(states.begin(),states.end(),x)==states.end()){
@@ -54,48 +58,15 @@ public:
             std::cerr << "bad edge\n";
             return ;
         }
-        g[x][let]=y;
+        g[x][let].push_back(y);
+    }
+
+    void compute_word_dp(const std::string &s){
+        
     }
 
     void compute_word(const std::string &s){
-        int sz=(int)s.size();
-        std::string curr=this->init,nxt="";
-        std::cout << "$ : " << init << "\n";
-        int idx=0;
 
-        if(s=="$"){
-            sz=0;
-        }
-        
-        while(idx<sz){
-            int mx=-1;
-            for(const auto [let,state]:g[curr]){
-                if(idx+(int)let.size()-1>=sz){
-                    continue;
-                }
-
-                if(s.substr(idx,(int)let.size())==let && (int)let.size()>mx){
-                    mx=(int)let.size();
-                    nxt=state;
-                }
-            }
-
-            if(mx==-1){
-                std::cout << "RESPINS (abort)\n";
-                return ;
-            }
-
-            std::cout << s.substr(0,idx+mx) << " : " << nxt << "\n";
-            idx+=mx; 
-            curr=nxt;
-        }
-
-        if(!fi[curr]){
-            std::cout << "RESPINS\n";
-        }
-        else {
-            std::cout << "ACCEPTAT\n";
-        }
     }
 }v;
 
@@ -132,9 +103,9 @@ std::pair<std::string,int> split(const std::string &s){
     return std::make_pair(ans,mask);
 }
 
-void readDfa()
+void readNfa()
 {
-    std::ifstream fin("dfa.in");
+    std::ifstream fin("nfa.in");
     int n;
 
     fin >> n;
@@ -163,16 +134,10 @@ void readDfa()
 
 void solve()
 {
-    std::ifstream fin("words.in");
-    while(fin >> aux){
-        v.compute_word(aux);
-    }
-    fin.close();
+
 }
 
 int main(int argc, char *argv[])
 {
-    readDfa();
-    solve();
     return 0;
 }
