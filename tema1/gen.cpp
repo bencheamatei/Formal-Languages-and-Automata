@@ -9,7 +9,7 @@ class trie {
 
 private:
 
-    int global_idx=0;
+    int global_idx;
     std::vector<std::string> alphabet,states;
     std::vector<std::tuple<std::string,std::string,std::string> > edges;
     struct nodd {
@@ -20,6 +20,21 @@ private:
     }*root;
 
 public:
+
+    trie() {
+        global_idx=0;
+        alphabet.clear();
+        states.clear();
+        edges.clear();
+        root=new nodd;
+    }
+
+    void add_letter(const std::string &let){
+        if(find(alphabet.begin(),alphabet.end(),let)!=alphabet.end()){
+            return;
+        }
+        alphabet.push_back(let);
+    }
 
     void insert_word(const std::string &s){
         if(s=="$"){
@@ -47,6 +62,8 @@ public:
             if(curr->nxt.find(aux)==curr->nxt.end()){
                 curr->nxt[aux]=new nodd;
             }
+
+            // std::cout << s.substr(idx,mx) << "\n";
             curr=curr->nxt[aux];
             idx+=mx;
         }
@@ -92,6 +109,8 @@ public:
     void build_input(const std::string &s){
         std::ofstream fout(s);
 
+        label_nodes(root);
+
         fout << (int)states.size() << "\n";
         for(const auto it:states){
             fout << it << "\n";
@@ -101,12 +120,40 @@ public:
             fout << it << "\n";
         }
 
+        for(const auto [x,l,y]:edges){
+            fout << x << " " << l << " " << y << "\n";
+        }
         fout.close();
     }
-};
+
+    void dfs_del(nodd *nod){
+        for(const auto it:nod->nxt) {
+            dfs_del(it.second);
+        }
+        delete nod;
+    }
+
+    ~trie() {
+        dfs_del(root);
+    }
+}v;
 
 int main()
 {
+    std::string aux;
+    for(int i=0; i<26; i++){
+        aux=(char)('a'+i);
+        v.add_letter(aux);
+    }
 
+    int n;
+    std::cin >> n;
+    for(int i=0; i<n; i++){
+        std::cin >> aux;
+        v.insert_word(aux);
+    }
+
+    v.build_input("dfa.in");
+    
     return 0;
 }
