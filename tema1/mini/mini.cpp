@@ -1,11 +1,5 @@
 #include <bits/stdc++.h>    
 
-// same ca la dfa, $ o sa fie luat drept lambda
-// cum difera aici?
-// daca vrem doar sa decidem daca un cuvant este acceptat sau nu 
-// putem sa rulam un dp care ruleaza in O(nr_states * len)
-// daca vrem sa afisam tot parcursul ne ducem spre o exponentiala 
-
 class lnfa {
 private:
     std::vector<std::string> alphabet,states,states_new;

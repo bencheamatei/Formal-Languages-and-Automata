@@ -1,0 +1,11 @@
+3
+q0 i
+q1 f
+q2 f
+3
+a
+b
+c
+q0 c q2
+q0 b q1
+q0 a q0

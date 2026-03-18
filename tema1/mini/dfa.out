@@ -1,0 +1,55 @@
+13
+q0 f 
+q1
+q2
+q3
+q4
+q5
+q6 i 
+q7
+q8
+q9
+q10
+q11
+q12
+26
+a
+b
+c
+d
+e
+f
+g
+h
+i
+j
+k
+l
+m
+n
+o
+p
+q
+r
+s
+t
+u
+v
+w
+x
+y
+z
+q1 e q0
+q2 i q0
+q3 a q5
+q4 b q7
+q5 e q2
+q5 k q10
+q5 b q4
+q6 m q3
+q7 o q8
+q8 p q12
+q9 t q11
+q10 u q9
+q11 y q1
+q12 e q2
