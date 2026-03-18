@@ -138,8 +138,7 @@ void readDfa()
     int n;
 
     fin >> n;
-    fin.get();
-
+    getline(fin,aux);
     for(int i=1; i<=n; i++){
         getline(fin,aux);
         std::pair<std::string,int> u=split(aux);
@@ -147,7 +146,7 @@ void readDfa()
     }
 
     fin >> n;
-    fin.get();
+    getline(fin,aux);
     for(int i=1; i<=n; i++){
         fin >> aux;
         v.add_letter(aux);

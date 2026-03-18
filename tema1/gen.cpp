@@ -153,7 +153,7 @@ int main()
         v.insert_word(aux);
     }
 
-    v.build_input("dfa.in");
+    v.build_input("./mini/dfa.in");
     
     return 0;
 }
