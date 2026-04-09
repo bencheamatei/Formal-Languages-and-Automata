@@ -1,12 +1,13 @@
 #include <bits/stdc++.h>    
 
-class lnfa {
+class mini {
 private:
     std::vector<std::string> alphabet,states,states_new;
     std::string init,init_new;
     std::unordered_map<std::string,bool> fi,fi_new;
-    std::unordered_map<std::string,std::unordered_map<std::string,std::string> > g,g_new;
+    std::unordered_map<std::string,std::unordered_map<std::string,std::string> > g,g_new,gt;
     std::unordered_map<std::string,std::string> maps;
+    std::unordered_map<std::string,bool> viz;
 
     bool validate_edge(const std::string &x, const std::string &let, const std::string &y){
         if(find(states.begin(),states.end(),x)==states.end()){
@@ -80,9 +81,88 @@ private:
                 if(g[it].find(let)==g[it].end())
                     continue;
                 g_new[maps[it]][let]=maps[g[it][let]];
+                gt[maps[g[it][let]]][let]=maps[it];
             }
         }
+
+        viz.clear();
+        final_filter();
     }
+
+    void dfs_init(const std::string &nod) {
+        viz[nod]=1;
+        for(const auto &let:alphabet) {
+            if(g[nod].find(let)==g[nod].end())
+                continue;
+            if(viz[g[nod][let]])
+                continue; 
+            dfs_init(g[nod][let]);
+        }
+    }
+
+    void init_filter() { // trebuie sa scot nodurile unreachable din init
+        dfs_init(init);
+        std::vector<std::string> aux_states;
+        for(const auto &it:states) {
+            if(viz[it]) {
+                aux_states.push_back(it);
+            }
+            else 
+                g.erase(it);
+        }
+
+        for(const auto &it:aux_states) {
+            for(const auto &let:alphabet){
+                if(g[it].find(let)==g[it].end())
+                    continue; 
+                if(!viz[g[it][let]]){
+                    g[it].erase(let);
+                }
+            }
+        }
+        states=aux_states;
+    }
+
+    void dfs_final(const std::string &nod) {
+        viz[nod]=1;
+        for(const auto &let:alphabet) {
+            if(gt[nod].find(let)==gt[nod].end())
+                continue;
+            if(viz[gt[nod][let]])
+                continue;
+            dfs_final(gt[nod][let]);
+        }
+    }
+
+    void final_filter() { // la final trebuie sa scot nodurile care nu ajung la noduri finale
+        for(const auto &nod:states_new) {
+            if(fi_new[nod]) {
+                dfs_final(nod);
+            }
+        }
+
+        std::vector<std::string> aux_states;
+        for(const auto &nod:states_new) {
+            if(viz[nod]) {
+                aux_states.push_back(nod);
+            }
+            else {
+                g_new.erase(nod);
+            }
+        }
+
+        for(const auto &it:aux_states) {
+            for(const auto &let:alphabet){
+                if(g_new[it].find(let)==g_new[it].end())
+                    continue; 
+                if(!viz[g_new[it][let]]){
+                    g_new[it].erase(let);
+                }
+            }
+        }
+        states_new=aux_states;
+    }
+
 public:
 
     void add_letter(const std::string &let){
@@ -119,6 +199,8 @@ public:
         std::vector<std::set<std::string> > p; // tranzitiile raman the same
         std::vector<std::set<std::string> > w;
         std::set<std::string> aux,pp,sec,dif;
+
+        init_filter();
 
         for(const auto &it:states) {
             if(fi[it])
@@ -177,12 +259,6 @@ public:
             }
         }   
         build_output(p);
-        // for(const auto &it:p){
-        //     for(const auto &i:it){
-        //         std::cout << i << " ";
-        //     }
-        //     std::cout << "\n";
-        // }
     }
 
     void show(const std::string &file){
