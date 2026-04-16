@@ -1,0 +1,14 @@
+3
+q0 i
+q1
+q2 f
+2
+a b
+2
+A !
+!
+q0 a ! q0 2 A !
+q0 a A q0 2 A A
+q0 b A q1 0
+q1 b A q1 0
+q1 $ ! q2 1 !
