@@ -1,7 +1,5 @@
 #include <bits/stdc++.h>    
 
-// pentru noi, $ o sa fie luat drept lambda
-
 class dfa {
 private:
     std::vector<std::string> alphabet,states;
@@ -23,6 +21,36 @@ private:
         }
 
         return 1;
+    }
+
+    std::pair<std::string,int> split(const std::string &s){
+        int mask=0;
+        std::string ans="",curr;
+        int cnt=0;
+        for(int i=0; i<(int)s.size(); i++){
+            if(s[i]==' ')
+                continue;
+
+            int j=i;
+            curr="";
+            while(j<(int)s.size() && s[j]!=' '){
+                curr.push_back(s[j]);
+                j++;
+            }
+
+            if(cnt==0){
+                ans=curr;
+            }
+            if(curr=="i"){
+                mask|=1;
+            }
+            if(curr=="f"){
+                mask|=2;
+            }
+            cnt++;
+            i=j-1;
+        }
+        return std::make_pair(ans,mask);
     }
 
 public:
@@ -60,7 +88,6 @@ public:
     void compute_word(const std::string &s){
         int sz=(int)s.size();
         std::string curr=this->init,nxt="";
-        std::cout << "$ : " << init << "\n";
         int idx=0;
 
         if(s=="$"){
@@ -85,7 +112,6 @@ public:
                 return ;
             }
 
-            std::cout << s.substr(0,idx+mx) << " : " << nxt << "\n";
             idx+=mx; 
             curr=nxt;
         }
@@ -97,73 +123,65 @@ public:
             std::cout << "ACCEPTAT\n";
         }
     }
-}v;
+
+    friend std::istream& operator>>(std::istream& is, dfa &d) {
+        int n;
+        std::string aux;
+        is >> n;
+        getline(is,aux);
+        for(int i=1; i<=n; i++) {
+            getline(is,aux);
+            std::pair<std::string,int> u=d.split(aux);
+            d.add_state(u.first,u.second);
+        }
+
+        is >> n;
+        getline(is,aux);
+        for(int i=1; i<=n; i++) {
+            is >> aux;
+            d.add_letter(aux);
+        }
+
+        std::string x,y;
+        while(is >> x >> aux >> y) {
+            d.add_edge(x,aux,y);
+        }
+        return is;
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, const dfa& x) {
+        os << (int)x.states.size() << "\n";
+        for(const auto &it:x.states) {
+            os << it << " ";
+            if(it==x.init) {
+                os << "i ";
+            }
+            if(x.fi.find(it)!=x.fi.end() && x.fi.at(it)) {
+                os << "f ";
+            }
+            os << "\n";
+        }
+        os << (int)x.alphabet.size() << "\n";
+        for(const auto &it:x.alphabet) {
+            os << it << "\n";
+        }
+
+        for(const auto &it:x.g) {
+            for(const auto &muc:it.second) {
+                os << it.first << " " << muc.first << " " << muc.second << "\n";
+            }
+        }   
+
+        return os;
+    }
+};
 
 std::string aux;
-
-std::pair<std::string,int> split(const std::string &s){
-    int mask=0;
-    std::string ans="",curr;
-    int cnt=0;
-    for(int i=0; i<(int)s.size(); i++){
-        if(s[i]==' ')
-            continue;
-
-        int j=i;
-        curr="";
-        while(j<(int)s.size() && s[j]!=' '){
-            curr.push_back(s[j]);
-            j++;
-        }
-
-        if(cnt==0){
-            ans=curr;
-        }
-        if(curr=="i"){
-            mask|=1;
-        }
-        if(curr=="f"){
-            mask|=2;
-        }
-        cnt++;
-        i=j-1;
-    }
-
-    return std::make_pair(ans,mask);
-}
-
-void readDfa()
-{
-    std::ifstream fin("dfa.in");
-    int n;
-
-    fin >> n;
-    getline(fin,aux);
-    for(int i=1; i<=n; i++){
-        getline(fin,aux);
-        std::pair<std::string,int> u=split(aux);
-        v.add_state(u.first,u.second);
-    }
-
-    fin >> n;
-    getline(fin,aux);
-    for(int i=1; i<=n; i++){
-        fin >> aux;
-        v.add_letter(aux);
-    }
-
-    std::string x,y;
-    while(fin >> x >> aux >> y){
-        v.add_edge(x,aux,y);
-    }
-
-    fin.close();
-}
-
-void solve()
+void solve(dfa &v)
 {
     std::ifstream fin("words.in");
     while(fin >> aux){
+        std::cout << aux << " - ";
         v.compute_word(aux);
     }
     fin.close();
@@ -171,7 +189,10 @@ void solve()
 
 int main(int argc, char *argv[])
 {
-    readDfa();
-    solve();
+    dfa x;
+    std::ifstream fin("dfa.in");
+    fin >> x; 
+    fin.close();
+    solve(x);
     return 0;
 }

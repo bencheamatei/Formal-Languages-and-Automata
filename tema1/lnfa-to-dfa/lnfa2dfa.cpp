@@ -117,7 +117,7 @@ public:
     std::string stringify_set(const std::set<std::string> &s){
         std::string ans="";
         for(auto it:s){
-            ans=ans+it;
+            ans=ans+it+"-";
         }
         return ans;
     }
@@ -127,6 +127,13 @@ public:
         std::string aux_s=stringify_set(aux),aux_s1;
         maps[aux_s]="q"+std::to_string(global_idx++);
         init_new=maps[aux_s];
+
+        for(const auto &it:aux) {
+            if(fi[it]) {
+                fi_new[init_new]=1;
+                break;
+            }
+        }
 
         std::queue<std::set<std::string> > q;
         q.push(aux);
@@ -188,31 +195,31 @@ public:
         }
     }
 
-    void show(const std::string &file){
-        std::ofstream fout(file);
-        fout << (int)states_new.size() << "\n";
-        for(const auto &it:states_new){
-            fout << it;
-            if(it==init_new){
-                fout << " i";
+    friend std::ostream& operator<<(std::ostream &os, const lnfa2dfa& x){
+        os << (int)x.states_new.size() << "\n";
+        for(const auto &it:x.states_new){
+            os << it;
+            if(it==x.init_new){
+                os << " i";
             }
-            if(fi_new[it]){
-                fout << " f";
+            if(x.fi_new.find(it) != x.fi_new.end() && x.fi_new.at(it)){
+                os << " f";
             }
-            fout << "\n";
+            os << "\n";
         }
-        fout << (int)alphabet.size() << "\n";
-        for(const auto &it:alphabet){
-            fout << it << "\n";
-        }
-
-        for(const auto &nod:states_new){
-            for(const auto it:g_new[nod]){
-                fout << nod << " " << it.first << " " << it.second << "\n";
-            }
+        os << (int)x.alphabet.size() << "\n";
+        for(const auto &it:x.alphabet){
+            os << it << "\n";
         }
 
-        fout.close();
+        for(const auto &nod:x.states_new){
+            if(x.g_new.find(nod)!=x.g_new.end())
+                continue;
+            for(const auto it:x.g_new.at(nod)){
+                os << nod << " " << it.first << " " << it.second << "\n";
+            }
+        }
+        return os;
     }
 }v;
 
@@ -274,7 +281,9 @@ void readLnfa()
         v.add_edge(x,aux,y);
     }
     v.compute_dfa();
-    v.show("dfa.out");
+    std::ofstream fout("dfa.out");
+    fout << v;
+    fout.close();
     fin.close();
 }
 
