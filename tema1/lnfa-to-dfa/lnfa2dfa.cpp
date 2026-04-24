@@ -43,6 +43,37 @@ private:
         return ans;
     }
 
+    std::pair<std::string,int> split(const std::string &s){
+        int mask=0;
+        std::string ans="",curr;
+        int cnt=0;
+        for(int i=0; i<(int)s.size(); i++){
+            if(s[i]==' ')
+                continue;
+
+            int j=i;
+            curr="";
+            while(j<(int)s.size() && s[j]!=' '){
+                curr.push_back(s[j]);
+                j++;
+            }
+
+            if(cnt==0){
+                ans=curr;
+            }
+            if(curr=="i"){
+                mask|=1;
+            }
+            if(curr=="f"){
+                mask|=2;
+            }
+            cnt++;
+            i=j-1;
+        }
+
+        return std::make_pair(ans,mask);
+    }
+
 public:
 
     void add_letter(const std::string &let){
@@ -213,7 +244,7 @@ public:
         }
 
         for(const auto &nod:x.states_new){
-            if(x.g_new.find(nod)!=x.g_new.end())
+            if(x.g_new.find(nod)==x.g_new.end())
                 continue;
             for(const auto it:x.g_new.at(nod)){
                 os << nod << " " << it.first << " " << it.second << "\n";
@@ -221,74 +252,38 @@ public:
         }
         return os;
     }
-}v;
 
+    friend std::istream& operator>>(std::istream &is, lnfa2dfa& lnfa) {
+        std::string aux;
+        int n;
+        is >> n;
+        getline(is,aux);
 
-std::string aux;
-std::pair<std::string,int> split(const std::string &s){
-    int mask=0;
-    std::string ans="",curr;
-    int cnt=0;
-    for(int i=0; i<(int)s.size(); i++){
-        if(s[i]==' ')
-            continue;
-
-        int j=i;
-        curr="";
-        while(j<(int)s.size() && s[j]!=' '){
-            curr.push_back(s[j]);
-            j++;
+        for(int i=1; i<=n; i++){
+            getline(is,aux);
+            std::pair<std::string,int> u=lnfa.split(aux);
+            lnfa.add_state(u.first,u.second);
+        }
+        is >> n;
+        getline(is,aux);
+        for(int i=1; i<=n; i++){
+            is >> aux;
+            lnfa.add_letter(aux);
         }
 
-        if(cnt==0){
-            ans=curr;
+        std::string x,y;
+        while(is >> x >> aux >> y){
+            lnfa.add_edge(x,aux,y);
         }
-        if(curr=="i"){
-            mask|=1;
-        }
-        if(curr=="f"){
-            mask|=2;
-        }
-        cnt++;
-        i=j-1;
+        return is;
     }
-
-    return std::make_pair(ans,mask);
-}
-
-void readLnfa()
-{
-    std::ifstream fin("lnfa.in");
-    int n;
-
-    fin >> n;
-    getline(fin,aux);
-
-    for(int i=1; i<=n; i++){
-        getline(fin,aux);
-        std::pair<std::string,int> u=split(aux);
-        v.add_state(u.first,u.second);
-    }
-    fin >> n;
-    getline(fin,aux);
-    for(int i=1; i<=n; i++){
-        fin >> aux;
-        v.add_letter(aux);
-    }
-
-    std::string x,y;
-    while(fin >> x >> aux >> y){
-        v.add_edge(x,aux,y);
-    }
-    v.compute_dfa();
-    std::ofstream fout("dfa.out");
-    fout << v;
-    fout.close();
-    fin.close();
-}
+};
 
 int main(int argc, char *argv[])
 {
-    readLnfa();
+    lnfa2dfa v;
+    std::cin >> v;
+    v.compute_dfa();
+    std::cout << v;
     return 0;
 }
