@@ -101,7 +101,9 @@ private:
     }
 
     void init_filter() { // trebuie sa scot nodurile unreachable din init
+        viz.clear();
         dfs_init(init);
+        viz[init]=1;
         std::vector<std::string> aux_states;
         for(const auto &it:states) {
             if(viz[it]) {
@@ -135,6 +137,7 @@ private:
     }
 
     void final_filter() { // la final trebuie sa scot nodurile care nu ajung la noduri finale
+        viz.clear();
         for(const auto &nod:states_new) {
             if(fi_new[nod]) {
                 dfs_final(nod);
@@ -161,6 +164,38 @@ private:
             }
         }
         states_new=aux_states;
+    }
+
+    
+    std::pair<std::string,int> split(const std::string &s){
+        int mask=0;
+        std::string ans="",curr;
+        int cnt=0;
+        for(int i=0; i<(int)s.size(); i++){
+            if(s[i]==' ')
+                continue;
+
+            int j=i;
+            curr="";
+            while(j<(int)s.size() && s[j]!=' '){
+                curr.push_back(s[j]);
+                j++;
+            }
+
+            if(cnt==0){
+                ans=curr;
+            }
+            if(curr=="i"){
+                mask|=1;
+            }
+            if(curr=="f"){
+                mask|=2;
+            }
+            cnt++;
+            i=j-1;
+        }
+
+        return std::make_pair(ans,mask);
     }
 
 public:
@@ -246,7 +281,7 @@ public:
                             if(sec.size()<=dif.size())
                                 w.push_back(sec);
                             else
-                                w.push_back(sec);
+                                w.push_back(dif);
                         }
 
                         const auto unde1=find(p.begin(),p.end(),it);
@@ -286,77 +321,62 @@ public:
 
         fout.close();
     }
-}v;
 
-std::string aux;
-
-std::pair<std::string,int> split(const std::string &s){
-    int mask=0;
-    std::string ans="",curr;
-    int cnt=0;
-    for(int i=0; i<(int)s.size(); i++){
-        if(s[i]==' ')
-            continue;
-
-        int j=i;
-        curr="";
-        while(j<(int)s.size() && s[j]!=' '){
-            curr.push_back(s[j]);
-            j++;
+    friend std::istream& operator>>(std::istream &is, mini &d) {
+        std::string aux;
+        int n;
+        is >> n;
+        getline(is,aux);
+        for(int i=1; i<=n; i++){
+            getline(is,aux);
+            std::pair<std::string,int> u=d.split(aux);
+            d.add_state(u.first,u.second);
+        }
+        is >> n;
+        getline(is,aux);
+        for(int i=1; i<=n; i++){
+            is >> aux;
+            d.add_letter(aux);
         }
 
-        if(cnt==0){
-            ans=curr;
+        std::string x,y;
+        while(is >> x >> aux >> y){
+            d.add_edge(x,aux,y);
         }
-        if(curr=="i"){
-            mask|=1;
+        return is;
+    }
+
+    friend std::ostream& operator<<(std::ostream &os, const mini &d) {
+        os << (int)d.states_new.size() << "\n";
+        for(const auto &it:d.states_new){
+            os << it;
+            if(it==d.init_new)
+                os << " i ";
+            if(d.fi_new.find(it)!=d.fi_new.end() && d.fi_new.at(it)==1)
+                os << " f ";
+            os << "\n";
         }
-        if(curr=="f"){
-            mask|=2;
+
+        os << (int)d.alphabet.size() << "\n";
+        for(const auto &it:d.alphabet)
+            os << it << "\n";
+
+        for(const auto &nod:d.states_new){
+            if(d.g_new.find(nod)==d.g_new.end())
+                continue;
+            for(const auto &vec:d.g_new.at(nod)){
+                os << nod << " " << vec.first << " " << vec.second << "\n";
+            }
         }
-        cnt++;
-        i=j-1;
+        return os;
     }
-
-    return std::make_pair(ans,mask);
-}
-
-void readDfa()
-{
-    std::ifstream fin("dfa.in");
-    int n;
-
-    fin >> n;
-    getline(fin,aux);
-
-    for(int i=1; i<=n; i++){
-        getline(fin,aux);
-        std::pair<std::string,int> u=split(aux);
-        v.add_state(u.first,u.second);
-    }
-    fin >> n;
-    getline(fin,aux);
-    for(int i=1; i<=n; i++){
-        fin >> aux;
-        v.add_letter(aux);
-    }
-
-    std::string x,y;
-    while(fin >> x >> aux >> y){
-        v.add_edge(x,aux,y);
-    }
-    v.hopcroft();
-    fin.close();
-}
-
-void outputDfa() 
-{
-    v.show("dfa.out");
-}
+};
 
 int main(int argc, char *argv[])
 {
-    readDfa();
-    outputDfa();
+    mini v;
+    std::cin >> v;
+    v.hopcroft();
+    std::cout << v;
     return 0;
 }
