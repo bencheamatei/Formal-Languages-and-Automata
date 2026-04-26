@@ -5,7 +5,8 @@ private:
     std::vector<std::string> alphabet,states,states_new;
     std::string init,init_new;
     std::unordered_map<std::string,bool> fi,fi_new;
-    std::unordered_map<std::string,std::unordered_map<std::string,std::string> > g,g_new,gt;
+    std::unordered_map<std::string,std::unordered_map<std::string,std::string> > g,g_new;
+    std::unordered_map<std::string, std::unordered_map<std::string,std::vector<std::string> > > gt;
     std::unordered_map<std::string,std::string> maps;
     std::unordered_map<std::string,bool> viz;
 
@@ -81,7 +82,7 @@ private:
                 if(g[it].find(let)==g[it].end())
                     continue;
                 g_new[maps[it]][let]=maps[g[it][let]];
-                gt[maps[g[it][let]]][let]=maps[it];
+                gt[maps[g[it][let]]][let].push_back(maps[it]);
             }
         }
 
@@ -130,9 +131,11 @@ private:
         for(const auto &let:alphabet) {
             if(gt[nod].find(let)==gt[nod].end())
                 continue;
-            if(viz[gt[nod][let]])
-                continue;
-            dfs_final(gt[nod][let]);
+            for(const auto &ant:gt[nod][let]) {
+                if(viz[ant])
+                    continue;
+                dfs_final(ant);
+            }
         }
     }
 
@@ -236,6 +239,16 @@ public:
         std::set<std::string> aux,pp,sec,dif;
 
         init_filter();
+
+        std::string bad_state="q_bad_state";
+        states.push_back(bad_state);
+        for(const auto &state:states) {
+            for(const auto &let:alphabet) {
+                if(g[state].find(let)==g[state].end()) {
+                    g[state][let]=bad_state;
+                }
+            }
+        }
 
         for(const auto &it:states) {
             if(fi[it])

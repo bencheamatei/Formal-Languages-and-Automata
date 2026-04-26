@@ -197,12 +197,16 @@ public:
             }
 
             for(const auto &let:alphabet) {
-                if((g.at(nod1).find(let)==g.at(nod1).end())^(other.g.at(nod2).find(let)==other.g.at(nod2).end())) {
+                bool c1=(g.find(nod1)!=g.end() && g.at(nod1).find(let)!=g.at(nod1).end());
+                bool c2=(other.g.find(nod2)!=other.g.end() && other.g.at(nod2).find(let)!=other.g.at(nod2).end());
+
+                if(c1!=c2) {
                     return 0;
                 }
 
-                if(g.at(nod1).find(let)==g.at(nod1).end())
-                    continue; 
+                if(!c1) {
+                    continue;
+                }
 
                 std::string vec1=g.at(nod1).at(let),vec2=other.g.at(nod2).at(let);
                 if((f.find(vec1)!=f.end() && f.at(vec1)!=vec2) || (inv.find(vec2)!=inv.end() && inv.at(vec2)!=vec1)) {
@@ -221,9 +225,12 @@ public:
     }
 };
 
-int main() {
+int main(int argc,char *argv[]) {
     dfa x,y;
-    std::cin >> x >> y;
+    std::ifstream fin1(argv[1]);
+    std::ifstream fin2(argv[2]);
+    fin1 >> x;
+    fin2 >> y;
     std::cout << (x==y) << "\n";
     return 0;
 }

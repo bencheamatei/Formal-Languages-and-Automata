@@ -68,6 +68,11 @@ public:
             os << "\n";
         }
 
+        os << (int)other.alphabet.size() << "\n";
+        for(const auto &it:other.alphabet) {
+            os << it << "\n";
+        }
+
         for(const auto &i:other.g) {
             for(const auto &muc:i.second) {
                 for(const auto &j:muc.second) {
@@ -77,9 +82,8 @@ public:
         }
         return os;
     }
-    std::string create_state(int &idx) {
+    std::string create_state(int idx) {
         std::string pp="q"+std::to_string(idx);
-        idx++;
         add_state(pp);
         return pp;
     }
@@ -90,7 +94,7 @@ private:
     std::string s;
     std::string p;
     bool is_char(char c) {
-        return c!=')' && c!='(' && c!='.' && c!='+' && c!='*';
+        return c!=')' && c!='(' && c!='.' && c!='+' && c!='*' && c!='@';
     }
 
     int priority(char c) {
@@ -193,7 +197,6 @@ public:
         for(int i=0; i<(int)s.size(); i++) {
             if(is_char(s[i])) {
                 q.push(s[i]);
-                // std::cout << s[i] << "\n";
             }
             else {
                 if(s[i]=='(') {
@@ -239,8 +242,8 @@ public:
             if(is_char(p[i])) {
                 std::string let="";
                 let.push_back(p[i]);
-                std::string st=x.create_state(idx);
-                std::string fi=x.create_state(idx);
+                std::string st=x.create_state(idx++);
+                std::string fi=x.create_state(idx++);
 
                 if(let!="$")
                     x.add_letter(let);
@@ -264,11 +267,11 @@ public:
                     std::pair<std::string,std::string> aux1=stk.back();
                     stk.pop_back();
 
-                    std::string aux_init=x.create_state(idx);
+                    std::string aux_init=x.create_state(idx++);
                     x.add_edge(aux_init,"$",aux1.first);
                     x.add_edge(aux_init,"$",aux2.first);
 
-                    std::string aux_fin=x.create_state(idx);
+                    std::string aux_fin=x.create_state(idx++);
                     x.add_edge(aux1.second,"$",aux_fin);
                     x.add_edge(aux2.second,"$",aux_fin);
 
@@ -278,8 +281,8 @@ public:
                     std::pair<std::string,std::string> aux1=stk.back();
                     stk.pop_back();
 
-                    std::string aux_init=x.create_state(idx);
-                    std::string aux_fin=x.create_state(idx);
+                    std::string aux_init=x.create_state(idx++);
+                    std::string aux_fin=x.create_state(idx++);
 
                     x.add_edge(aux_init,"$",aux_fin);
                     x.add_edge(aux_init,"$",aux1.first);

@@ -5,15 +5,17 @@
 class regex {
 private:
     std::string s;
+    int prec;
 public:
 
-    regex() : s("@") {}
-    regex(const std::string &s) : s(s) {}
+    regex() : s("@"), prec(1) {}
+    regex(const std::string &s,int prec=1) : s(s), prec(prec) {}
 
     regex& operator=(const regex &other) {
         if(this==&other)
             return *this;
         this->s=other.s;
+        this->prec=other.prec;
         return *this;
     }
 
@@ -24,7 +26,7 @@ public:
             return *this;
         if(this->s==other.s)    
             return *this;
-        return regex("("+this->s+")+("+other.s+")");
+        return regex(this->s+"+"+other.s,3);
     }
 
     regex operator*(const regex &other) const {
@@ -34,16 +36,26 @@ public:
             return other;
         if(other.s=="$")
             return *this;
-        return regex("("+this->s+").("+other.s+")");
+
+        std::string p1=this->s,p2=other.s;
+        if(this->prec==3) {
+            p1="("+p1+")";
+        } 
+
+        if(other.prec==3) {
+            p2="("+p2+")";
+        }
+
+        return regex(p1+"."+p2,2);
     }
 
     regex star() const {
         if(this->s=="$" || this->s=="@")
             return regex("$");
-        if(this->s.size()==1) {
-            return regex(this->s+"*");
+        if(this->prec>=2) {
+            return regex("("+this->s+")"+"*",1);
         }
-        return regex("("+this->s+")*");
+        return regex(this->s+"*",1);
     }
 
     friend std::ostream& operator<<(std::ostream &os, const regex &p) {
@@ -248,7 +260,9 @@ public:
 
 int main() {
     lnfa x;
+    std::ifstream fin("b.in");
     std::cin >> x;
+    fin.close();
     std::cout << x.transform2regex() << "\n";
     return 0;
 }
