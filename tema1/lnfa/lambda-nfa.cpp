@@ -6,6 +6,8 @@
 // putem sa rulam un dp care ruleaza in O(nr_states * len)
 // daca vrem sa afisam tot parcursul ne ducem spre o exponentiala 
 
+std::ofstream fout("b.out");
+
 class lnfa {
 private:
     std::vector<std::string> alphabet,states;
@@ -92,6 +94,7 @@ public:
     }
 
     void compute_word(const std::string &s){
+        fout << s << " - ";
         std::set<std::string> curr,nxt;
         std::vector<std::string> aux;
         int sz=(int)s.size();
@@ -105,12 +108,14 @@ public:
         for(const auto it:aux)
             curr.insert(it);
 
-        std::cout << "$ : {";
+        // std::cout << "$ : {";
         for(const auto it:curr){
-            if(it!=*--curr.end())
-                std::cout << it << ", ";
-            else    
-                std::cout << it << "}\n";
+            if(it!=*--curr.end()) {
+                // std::cout << it << ", ";
+            }
+            else {
+                // std::cout << it << "}\n";
+            }
         }
 
         while(idx<sz){
@@ -144,16 +149,18 @@ public:
             }
 
             if(mx==-1){
-                std::cout << "RESPINS (abort)\n";
+                fout << "RESPINS (abort)\n";
                 return;
             }
 
-            std::cout << s.substr(0,idx+mx) << " : {";
+            // std::cout << s.substr(0,idx+mx) << " : {";
             for(const auto i:nxt){
-                if(i!=*--nxt.end())
-                    std::cout << i << ", ";
-                else 
-                    std::cout << i << "}\n";
+                if(i!=*--nxt.end()) {
+                    // std::cout << i << ", ";
+                }
+                else {
+                    // std::cout << i << "}\n";
+                }
             }
             idx+=mx;    
             swap(curr,nxt);
@@ -161,11 +168,11 @@ public:
 
         for(const auto it:curr){
             if(fi[it]){
-                std::cout << "ACCEPTAT\n";
+                fout << "ACCEPTAT\n";
                 return;
             }
         }
-        std::cout << "RESPINS\n";
+        fout << "RESPINS\n";
     }   
 }v;
 
@@ -236,7 +243,7 @@ void solve()
 {
     std::ifstream fin("words.in");
     while(fin >> aux){
-        std::cout << aux << "\n";
+        // std::cout << aux << "\n";
         v.compute_word(aux);
     }
     fin.close();
